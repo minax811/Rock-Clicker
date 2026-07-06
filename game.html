@@ -9,16 +9,16 @@
     margin: 0;
     height: 100vh;
     display: flex;
-    background: #222;
-    color: #eee;
+    background: #111;
+    color: #DA9100;
     font-family: Arial, sans-serif;
     overflow: hidden;
   }
 
   #sidebar {
     width: 240px;
-    background: #2b2b2b;
-    border-right: 2px solid #444;
+    background: #1a1a1a;
+    border-right: 2px solid #DA9100;
     padding: 16px;
     box-sizing: border-box;
     display: flex;
@@ -36,38 +36,47 @@
   }
 
   .upgrade {
-    background: #383838;
-    border: 2px solid #555;
+    background: #222;
+    border: 2px solid #6b5500;
     border-radius: 6px;
     padding: 10px;
+    cursor: pointer;
   }
 
   .upgrade .name { font-weight: bold; }
-  .upgrade .cost { color: #aaa; font-size: 0.85rem; margin-top: 4px; }
-  .upgrade.locked { opacity: 0.45; }
+  .upgrade .cost { color: #b89200; font-size: 0.85rem; margin-top: 4px; }
+
+  /* can't afford yet */
+  .upgrade.locked { opacity: 0.45; cursor: not-allowed; }
+  /* affordable right now */
+  .upgrade.affordable { border-color: #ffd400; }
+  /* already bought */
+  .upgrade.owned { border-color: #b89200; opacity: 0.7; cursor: default; }
+  /* currently equipped pickaxe */
+  .upgrade.equipped { border-color: #fff27a; }
 
   .divider {
-    border-top: 1px solid #555;
+    border-top: 1px solid #6b5500;
     margin: 8px 0 2px 0;
     padding-top: 8px;
     text-align: center;
-    color: #aaa;
+    color: #b89200;
     font-size: 0.8rem;
     letter-spacing: 1px;
   }
 
-  .upgrade.special { border-color: #7a6; }
+  .upgrade.special { border-color: #b89200; }
 
   #backBtn {
     margin-top: auto;
     padding: 8px 0;
-    background: #444;
-    color: #eee;
-    border: 2px solid #666;
+    background: #222;
+    color: #DA9100;
+    border: 2px solid #6b5500;
     border-radius: 6px;
     cursor: pointer;
   }
-  #backBtn:hover { background: #555; }
+  #backBtn:hover { background: #2a2a2a; }
 
   #main {
     flex: 1;
@@ -92,8 +101,8 @@
 
   #healthWrap {
     width: 320px;
-    background: #333;
-    border: 2px solid #555;
+    background: #1a1a1a;
+    border: 2px solid #6b5500;
     border-radius: 8px;
     height: 26px;
     overflow: hidden;
@@ -102,57 +111,50 @@
   #healthFill {
     width: 100%;
     height: 100%;
-    background: #c33;
+    background: #DA9100;
+    transition: width 0.08s linear;
+  }
+
+  #healthText {
+    font-size: 0.9rem;
+    color: #b89200;
+    margin-top: -14px;
   }
 
   #rock {
     width: 260px;
     height: 240px;
-    background: #777;
-    border: 3px solid #999;
-    border-radius: 48% 52% 55% 45% / 50% 45% 55% 50%;
+    /* Add your image: place a file named rock.png next to this HTML file */
+    background-image: url("rock.png");
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 1.4rem;
-    color: #ddd;
+    color: #DA9100;
     cursor: pointer;
     user-select: none;
   }
 
+  #damagePerClick {
+    font-size: 0.95rem;
+    color: #DA9100;
+  }
 </style>
 </head>
 <body>
 
   <div id="sidebar">
     <h2>UPGRADES</h2>
-
-    <div class="upgrade">
-      <div class="name">Pickaxe 1</div>
-      <div class="cost">Cost: ??? shards</div>
-    </div>
-    <div class="upgrade locked">
-      <div class="name">Pickaxe 2</div>
-      <div class="cost">Cost: ??? shards</div>
-    </div>
-    <div class="upgrade locked">
-      <div class="name">Pickaxe 3</div>
-      <div class="cost">Cost: ??? shards</div>
-    </div>
-    <div class="upgrade locked">
-      <div class="name">Pickaxe 4</div>
-      <div class="cost">Cost: ??? shards</div>
-    </div>
-    <div class="upgrade locked">
-      <div class="name">Pickaxe 5</div>
-      <div class="cost">Cost: ??? shards</div>
-    </div>
+    <div id="pickaxeList"></div>
 
     <div class="divider">SPECIAL</div>
 
-    <div class="upgrade special locked">
+    <div class="upgrade special locked" id="nuclearUpgrade">
       <div class="name">Nuclear Decay</div>
-      <div class="cost">Unlocks at ??? shards</div>
+      <div class="cost" id="nuclearCost"></div>
     </div>
 
     <button id="backBtn" onclick="window.location.href='index.html'">Back to Menu</button>
@@ -160,16 +162,172 @@
 
   <div id="main">
     <div id="topbar">
-      <span>Shards: 0</span>
-      <span>Hits: 0</span>
+      <span>Shards: <span id="shardCount">0</span></span>
+      <span>Hits: <span id="hitCount">0</span></span>
     </div>
 
     <div id="healthWrap">
       <div id="healthFill"></div>
     </div>
+    <div id="healthText"></div>
 
-    <div id="rock">ROCK</div>
+    <div id="rock"></div>
+
+    <div id="damagePerClick"></div>
   </div>
+
+  <script>
+
+  const PICKAXES = [
+    { name: "Wooden Pickaxe",  damage: 1,  cost: 0    },
+    { name: "Stone Pickaxe",   damage: 3,  cost: 50   },
+    { name: "Copper Pickaxe",  damage: 6,  cost: 200  },
+    { name: "Iron Pickaxe",    damage: 12, cost: 750  },
+    { name: "Diamond Pickaxe", damage: 25, cost: 2000 },
+  ];
+
+  const ROCK_HEALTH      = 10000;
+  const SHARDS_PER_DAMAGE = 1;
+
+  const NUCLEAR_UNLOCK_COST = 500;
+  const NUCLEAR_DPS         = 5;
+
+  let shards = 0;
+  let hits = 0;
+  let equippedIndex = 0;
+  let ownedCount = 1;
+  let nuclearOwned = false;
+  let rockBroken = false;
+
+  let rockHealth = ROCK_HEALTH;
+
+  const pickaxeListEl = document.getElementById("pickaxeList");
+  const nuclearEl     = document.getElementById("nuclearUpgrade");
+  const nuclearCostEl = document.getElementById("nuclearCost");
+  const shardEl       = document.getElementById("shardCount");
+  const hitEl         = document.getElementById("hitCount");
+  const healthFillEl  = document.getElementById("healthFill");
+  const healthTextEl  = document.getElementById("healthText");
+  const rockEl        = document.getElementById("rock");
+  const dpcEl         = document.getElementById("damagePerClick");
+
+  const pickaxeEls = [];
+  PICKAXES.forEach((p, i) => {
+    const div = document.createElement("div");
+    div.className = "upgrade";
+    div.innerHTML =
+      '<div class="name">' + p.name + '</div>' +
+      '<div class="cost"></div>';
+    div.addEventListener("click", () => buyPickaxe(i));
+    pickaxeListEl.appendChild(div);
+    pickaxeEls.push(div);
+  });
+
+  nuclearCostEl.textContent = "Unlocks at " + NUCLEAR_UNLOCK_COST + " shards";
+  nuclearEl.addEventListener("click", buyNuclear);
+
+  function hitRock() {
+    if (rockBroken) return;
+    hits++;
+    dealDamage(PICKAXES[equippedIndex].damage);
+    updateUI();
+  }
+
+  function dealDamage(amount) {
+    if (rockBroken) return;
+    const applied = Math.min(amount, rockHealth);
+    rockHealth -= applied;
+    shards += applied * SHARDS_PER_DAMAGE;
+    if (rockHealth <= 0) {
+      rockHealth = 0;
+      rockBroken = true;
+    }
+  }
+
+  function buyPickaxe(i) {
+    if (i < ownedCount) {
+      equippedIndex = i;
+      updateUI();
+      return;
+    }
+    if (i !== ownedCount) return;
+    if (shards < PICKAXES[i].cost) return;
+
+    shards -= PICKAXES[i].cost;
+    ownedCount++;
+    equippedIndex = i;
+    updateUI();
+  }
+
+  function buyNuclear() {
+    if (nuclearOwned) return;
+    if (shards < NUCLEAR_UNLOCK_COST) return;
+    shards -= NUCLEAR_UNLOCK_COST;
+    nuclearOwned = true;
+    startNuclearDecay();
+    updateUI();
+  }
+
+  function startNuclearDecay() {
+    setInterval(() => {
+      dealDamage(NUCLEAR_DPS / 10);
+      updateUI();
+    }, 100);
+  }
+
+  function updateUI() {
+    shardEl.textContent = shards;
+    hitEl.textContent = hits;
+
+    const pct = Math.max(0, (rockHealth / ROCK_HEALTH) * 100);
+    healthFillEl.style.width = pct + "%";
+    healthTextEl.textContent =
+      Math.max(0, Math.ceil(rockHealth)) + " / " + ROCK_HEALTH;
+
+    if (rockBroken) {
+      rockEl.textContent = "BROKEN!";
+      dpcEl.textContent = "You shattered the rock!";
+    } else {
+      dpcEl.textContent = PICKAXES[equippedIndex].damage + " damage per click";
+    }
+
+    pickaxeEls.forEach((el, i) => {
+      const p = PICKAXES[i];
+      const costEl = el.querySelector(".cost");
+      el.classList.remove("locked", "affordable", "owned", "equipped");
+
+      if (i < ownedCount) {
+        el.classList.add("owned");
+        costEl.textContent = "Owned";
+        if (i === equippedIndex) {
+          el.classList.add("equipped");
+          costEl.textContent = "Equipped";
+        }
+      } else if (i === ownedCount) {
+        costEl.textContent = "Cost: " + p.cost + " shards";
+        el.classList.add(shards >= p.cost ? "affordable" : "locked");
+      } else {
+        costEl.textContent = "Cost: " + p.cost + " shards";
+        el.classList.add("locked");
+      }
+    });
+
+    nuclearEl.classList.remove("locked", "affordable", "owned");
+    if (nuclearOwned) {
+      nuclearEl.classList.add("owned");
+      nuclearCostEl.textContent = "Active: " + NUCLEAR_DPS + " dmg/sec";
+    } else if (shards >= NUCLEAR_UNLOCK_COST) {
+      nuclearEl.classList.add("affordable");
+      nuclearCostEl.textContent = "Buy: " + NUCLEAR_UNLOCK_COST + " shards";
+    } else {
+      nuclearEl.classList.add("locked");
+      nuclearCostEl.textContent = "Unlocks at " + NUCLEAR_UNLOCK_COST + " shards";
+    }
+  }
+
+  rockEl.addEventListener("click", hitRock);
+  updateUI();
+  </script>
 
 </body>
 </html>
