@@ -11,14 +11,19 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: #222;
-    color: #ffffff;
+     background: url("Background.jpg") center / cover no-repeat, #111;
+    color: #DA9100;
     font-family: Arial, sans-serif;
   }
 
   .menu { text-align: center; }
-  .menu h1 { font-size: 3rem; margin-bottom: 0.25rem; }
-  .menu p.tagline { margin-top: 0; margin-bottom: 2.5rem; color: #aaa; }
+  .menu h1 {
+    font-size: 3rem;
+    margin-bottom: 0.25rem;
+    color: #DA9100;
+    letter-spacing: 3px;
+  }
+  .menu p.tagline { margin-top: 0; margin-bottom: 2.5rem; color: #b89200; }
 
   .menu button {
     display: block;
@@ -27,13 +32,22 @@
     padding: 0.9rem 0;
     font-size: 1.1rem;
     cursor: pointer;
-    background: #444;
-    color: #eee;
-    border: 2px solid #666;
+    background: #222;
+    color: #DA9100;
+    border: 2px solid #6b5500;
     border-radius: 6px;
+    letter-spacing: 1px;
+    transition: background 0.15s, border-color 0.15s;
   }
-  .menu button:hover { background: #555; }
-  .menu button:disabled { opacity: 0.4; cursor: not-allowed; }
+  .menu button:hover {
+    background: #2a2a2a;
+    border-color: #DA9100;
+  }
+  .menu button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    border-color: #6b5500;
+  }
 
 </style>
 </head>
@@ -44,7 +58,6 @@
     <p class="tagline">Click the rock. Collect the shards.</p>
 
     <button id="playBtn">Play</button>
-    <button disabled>Settings</button>
 
   </div>
 
