@@ -1,2 +1,4 @@
 # Rock-Clicker
-Its a cookie clicker type of game made in html instead of clicking cookies you click a rock and get shards, use those shards to get upgrades
+Its a cookie clicker type of game made in html instead of clicking cookies you click a rock and get shards, use those shards to get upgrades. The currency used to buy upgrades in this game is shards. basically 1 damage point is equal to 1 shard and getting multipliers will allow you to get more then 1 damage per click thus also increaisng the rate at which you get shards
+# Objective of the game
+You have to break the rock and reach the gem. A rock has 10,000 health. 1 damage decreases 1 health. Initally one click will do 1 damage only however with the help of multipliers you can increase it to 3x,6x,12x,25x mutliplier meaning each click will do X amount of damage. Another feature thats in the game is Drilling using 500 shards you can buy a drill that drills at a constant rate
