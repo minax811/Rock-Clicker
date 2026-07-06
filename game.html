@@ -9,16 +9,16 @@
     margin: 0;
     height: 100vh;
     display: flex;
-    background: url("GameBG.png") center / cover no-repeat, #111;
-    color: #DA9100;
+    background: url("game.jpeg") center / cover no-repeat, #111;
+    color: #ffffff;
     font-family: Arial, sans-serif;
     overflow: hidden;
   }
 
   #sidebar {
     width: 240px;
-    background: #1a1a1a;
-    border-right: 2px solid #DA9100;
+    background: #37493a;
+    border-right: 2px solid #24352a;
     padding: 16px;
     box-sizing: border-box;
     display: flex;
@@ -36,47 +36,43 @@
   }
 
   .upgrade {
-    background: #222;
-    border: 2px solid #6b5500;
+    background: #1e2a21;
+    border: 2px solid #2e4a36;
     border-radius: 6px;
     padding: 10px;
     cursor: pointer;
   }
 
   .upgrade .name { font-weight: bold; }
-  .upgrade .cost { color: #b89200; font-size: 0.85rem; margin-top: 4px; }
+  .upgrade .cost { color: #ffffff; font-size: 0.85rem; margin-top: 4px; }
 
-  /* can't afford yet */
   .upgrade.locked { opacity: 0.45; cursor: not-allowed; }
-  /* affordable right now */
-  .upgrade.affordable { border-color: #ffd400; }
-  /* already bought */
-  .upgrade.owned { border-color: #b89200; opacity: 0.7; cursor: default; }
-  /* currently equipped pickaxe */
-  .upgrade.equipped { border-color: #fff27a; }
+  .upgrade.affordable { border-color: #4fdd82; }
+  .upgrade.owned { border-color: #7aa588; opacity: 0.7; cursor: default; }
+  .upgrade.equipped { border-color: #8ff2b0; }
 
   .divider {
-    border-top: 1px solid #6b5500;
+    border-top: 1px solid #2e4a36;
     margin: 8px 0 2px 0;
     padding-top: 8px;
     text-align: center;
-    color: #b89200;
+    color: #7aa588;
     font-size: 0.8rem;
     letter-spacing: 1px;
   }
 
-  .upgrade.special { border-color: #b89200; }
+  .upgrade.special { border-color: #7aa588; }
 
   #backBtn {
     margin-top: auto;
     padding: 8px 0;
-    background: #222;
-    color: #DA9100;
-    border: 2px solid #6b5500;
+    background: #1e2a21;
+    color: #3fb353;
+    border: 2px solid #2e4a36;
     border-radius: 6px;
     cursor: pointer;
   }
-  #backBtn:hover { background: #2a2a2a; }
+  #backBtn:hover { background: #26382c; }
 
   #main {
     flex: 1;
@@ -97,25 +93,25 @@
     justify-content: center;
     gap: 40px;
     font-size: 1.1rem;
+    color: #ffffff;
   }
 
-  /* Shards counter box in the top-right corner */
   #shardBox {
     position: absolute;
     top: 16px;
     right: 16px;
-    background: #1a1a1a;
-    border: 2px solid #DA9100;
+    background: #16211a;
+    border: 2px solid #3fb353;
     border-radius: 6px;
     padding: 10px 14px;
     font-size: 1.1rem;
-    color: #DA9100;
+    color: #4fdd82;
   }
 
   #healthWrap {
     width: 480px;
-    background: #1a1a1a;
-    border: 2px solid #6b5500;
+    background: #16211a;
+    border: 2px solid #2e4a36;
     border-radius: 8px;
     height: 40px;
     overflow: hidden;
@@ -124,13 +120,13 @@
   #healthFill {
     width: 100%;
     height: 100%;
-    background: #DA9100;
+    background: #3fb353;
     transition: width 0.08s linear;
   }
 
   #healthText {
     font-size: 1rem;
-    color: #b89200;
+    color: #9ccfa9;
     margin-top: -21px;
   }
 
@@ -138,7 +134,7 @@
     width: 540px;
     height: 480px;
     margin-top : 300px;
-    background-image: url("rock.png");
+    background-image: url("ROCK2.png");
     background-size: contain;
     background-position: center;
     background-repeat: no-repeat;
@@ -146,14 +142,39 @@
     align-items: center;
     justify-content: center;
     font-size: 1.4rem;
-    color: #DA9100;
+    color: #8ff2b0;
     cursor: pointer;
     user-select: none;
   }
 
+  @keyframes rockBounce {
+    0%   { transform: scale(1); }
+    40%  { transform: scale(1.12); }
+    100% { transform: scale(1); }
+  }
+  #rock.bounce {
+    animation: rockBounce 0.18s ease-out;
+  }
+
+  .particle {
+    position: fixed;
+    pointer-events: none;
+    color: #4fdd82;
+    font-weight: bold;
+    font-size: 1.4rem;
+    text-shadow: 0 0 4px rgba(0, 0, 0, 0.7);
+    user-select: none;
+    z-index: 1000;
+    animation: floatUp 0.7s ease-out forwards;
+  }
+  @keyframes floatUp {
+    0%   { opacity: 1; transform: translate(-50%, 0) scale(1); }
+    100% { opacity: 0; transform: translate(-50%, -70px) scale(1.2); }
+  }
+
   #damagePerClick {
-    font-size: 0.95rem;
-    color: #DA9100;
+    font-size: 1.5rem;
+    color: #4fdd82;
   }
 </style>
 </head>
@@ -240,11 +261,29 @@
   nuclearCostEl.textContent = "Unlocks at " + NUCLEAR_UNLOCK_COST + " shards";
   nuclearEl.addEventListener("click", buyNuclear);
 
-  function hitRock() {
+  function hitRock(e) {
     if (rockBroken) return;
     hits++;
-    dealDamage(PICKAXES[equippedIndex].damage);
+    const dmg = PICKAXES[equippedIndex].damage;
+    dealDamage(dmg);
+
+    rockEl.classList.remove("bounce");
+    void rockEl.offsetWidth;
+    rockEl.classList.add("bounce");
+
+    if (e) spawnParticle(e.clientX, e.clientY, dmg);
+
     updateUI();
+  }
+
+  function spawnParticle(x, y, amount) {
+    const p = document.createElement("div");
+    p.className = "particle";
+    p.textContent = "+" + amount;
+    p.style.left = (x + (Math.random() * 24 - 12)) + "px";
+    p.style.top = y + "px";
+    document.body.appendChild(p);
+    setTimeout(() => p.remove(), 700);
   }
 
   function dealDamage(amount) {
@@ -299,7 +338,8 @@
       Math.max(0, Math.ceil(rockHealth)) + " / " + ROCK_HEALTH;
 
     if (rockBroken) {
-      rockEl.textContent = "BROKEN!";
+      rockEl.style.backgroundImage = 'url("RockCracked.png")';
+      rockEl.textContent = "";
       dpcEl.textContent = "You shattered the rock!";
     } else {
       dpcEl.textContent = PICKAXES[equippedIndex].damage + " damage per click";
