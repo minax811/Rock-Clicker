@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rock Breaker - Game</title>
+<style>
+  body {
+    margin: 0;
+    height: 100vh;
+    display: flex;
+    overflow: hidden;
+  }
+
+  #sidebar {
+    width: 240px;
+    padding: 16px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    overflow-y: auto;
+    flex-shrink: 0;
+  }
+
+  #sidebar h2 {
+    margin: 0 0 6px 0;
+    font-size: 1.2rem;
+    text-align: center;
+  }
+
+  .upgrade {
+    padding: 10px;
+  }
+
+  .upgrade .name { font-weight: bold; }
+  .upgrade .cost { font-size: 0.85rem; margin-top: 4px; }
+
+  .divider {
+    margin: 8px 0 2px 0;
+    padding-top: 8px;
+    text-align: center;
+    font-size: 0.8rem;
+  }
+
+  #backBtn {
+    margin-top: auto;
+    padding: 8px 0;
+  }
+
+  #main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+    position: relative;
+  }
+
+  #topbar {
+    position: absolute;
+    top: 16px;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    font-size: 1.1rem;
+  }
+
+  #healthWrap {
+    width: 320px;
+    height: 26px;
+  }
+
+  #healthFill {
+    width: 100%;
+    height: 100%;
+  }
+
+  #rock {
+    width: 260px;
+    height: 240px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    cursor: pointer;
+    user-select: none;
+  }
+
+</style>
+</head>
+<body>
+
+  <div id="sidebar">
+    <h2>UPGRADES</h2>
+
+    <div class="upgrade">
+      <div class="name">Wooden Pickaxe</div>
+      <div class="cost">cost</div>
+    </div>
+    <div class="upgrade locked">
+      <div class="name">Stone Pickaxe</div>
+      <div class="cost">cost</div>
+    </div>
+    <div class="upgrade locked">
+      <div class="name">Copper Pickaxe</div>
+      <div class="cost">Cost</div>
+    </div>
+    <div class="upgrade locked">
+      <div class="name">Iron Pickaxe</div>
+      <div class="cost">Cost:/div>
+    </div>
+    <div class="upgrade locked">
+      <div class="name">Diamond Pickaxe</div>
+      <div class="cost">Cost/div>
+    </div>
+
+    <div class="divider">SPECIAL</div>
+
+    <div class="upgrade special locked">
+      <div class="name">Nuclear Decay</div>
+      <div class="cost">Unlocks at ??? shards</div>
+    </div>
+
+    <button id="backBtn" onclick="window.location.href='index.html'">Back to Menu</button>
+  </div>
+
+  <div id="main">
+    <div id="topbar">
+      <span>Shards: 0</span>
+      <span>Hits: 0</span>
+    </div>
+
+    <div id="healthWrap">
+      <div id="healthFill"></div>
+    </div>
+
+    <div id="rock">ROCK</div>
+  </div>
+
+</body>
+</html>
