@@ -63,8 +63,18 @@
 
   .upgrade.special { border-color: #7aa588; }
 
-  #backBtn {
+  #muteBtn {
     margin-top: auto;
+    padding: 8px 0;
+    background: #1e2a21;
+    color: #4fdd82;
+    border: 2px solid #2e4a36;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  #muteBtn:hover { background: #26382c; }
+
+  #backBtn {
     padding: 8px 0;
     background: #1e2a21;
     color: #3fb353;
@@ -191,6 +201,7 @@
       <div class="cost" id="nuclearCost"></div>
     </div>
 
+    <button id="muteBtn">Sound: On</button>
     <button id="backBtn" onclick="window.location.href='index.html'">Back to Menu</button>
   </div>
 
@@ -212,6 +223,41 @@
   </div>
 
   <script>
+
+  let soundOn = true;
+
+  const SOUNDS = {
+    hit:      { src: "hit.mp3",      volume: 0.6 },
+    break:    { src: "break.mp3",    volume: 0.8 },
+    purchase: { src: "purchase.mp3", volume: 0.7 },
+    equip:    { src: "equip.mp3",    volume: 0.5 },
+    nuclear:  { src: "nuclear.mp3",  volume: 0.8 },
+    error:    { src: "error.mp3",    volume: 0.5 },
+  };
+
+  Object.values(SOUNDS).forEach(s => {
+    s.audio = new Audio(s.src);
+    s.audio.preload = "auto";
+    s.audio.volume = s.volume;
+  });
+
+  function playSound(key) {
+    if (!soundOn) return;
+    const s = SOUNDS[key];
+    if (!s) return;
+    const clip = s.audio.cloneNode();
+    clip.volume = s.volume;
+    clip.play().catch(() => {});
+  }
+
+  function playHit()      { playSound("hit"); }
+  function playBreak()    { playSound("break"); }
+  function playPurchase() { playSound("purchase"); }
+  function playEquip()    { playSound("equip"); }
+  function playNuclear()  { playSound("nuclear"); }
+  function playError()    { playSound("error"); }
+
+  
 
   const PICKAXES = [
     { name: "Wooden Pickaxe",  damage: 1,  cost: 0    },
@@ -245,6 +291,7 @@
   const healthTextEl  = document.getElementById("healthText");
   const rockEl        = document.getElementById("rock");
   const dpcEl         = document.getElementById("damagePerClick");
+  const muteBtn       = document.getElementById("muteBtn");
 
   const pickaxeEls = [];
   PICKAXES.forEach((p, i) => {
@@ -261,9 +308,15 @@
   nuclearCostEl.textContent = "Unlocks at " + NUCLEAR_UNLOCK_COST + " shards";
   nuclearEl.addEventListener("click", buyNuclear);
 
+  muteBtn.addEventListener("click", () => {
+    soundOn = !soundOn;
+    muteBtn.textContent = soundOn ? "Sound: On" : "Sound: Off";
+  });
+
   function hitRock(e) {
     if (rockBroken) return;
     hits++;
+    playHit();
     const dmg = PICKAXES[equippedIndex].damage;
     dealDamage(dmg);
 
@@ -294,29 +347,33 @@
     if (rockHealth <= 0) {
       rockHealth = 0;
       rockBroken = true;
+      playBreak();
     }
   }
 
   function buyPickaxe(i) {
     if (i < ownedCount) {
       equippedIndex = i;
+      playEquip();
       updateUI();
       return;
     }
-    if (i !== ownedCount) return;
-    if (shards < PICKAXES[i].cost) return;
+    if (i !== ownedCount) { playError(); return; }
+    if (shards < PICKAXES[i].cost) { playError(); return; }
 
     shards -= PICKAXES[i].cost;
     ownedCount++;
     equippedIndex = i;
+    playPurchase();
     updateUI();
   }
 
   function buyNuclear() {
     if (nuclearOwned) return;
-    if (shards < NUCLEAR_UNLOCK_COST) return;
+    if (shards < NUCLEAR_UNLOCK_COST) { playError(); return; }
     shards -= NUCLEAR_UNLOCK_COST;
     nuclearOwned = true;
+    playNuclear();
     startNuclearDecay();
     updateUI();
   }
